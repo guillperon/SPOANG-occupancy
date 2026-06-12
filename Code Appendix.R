@@ -1,7 +1,7 @@
 ## Code appendix to "Residuals of species distribution model reveal hotspots and strongholds for a passerine affected by the cagebird trade "
-## Author : Guillaume Péron
+## Author : Guillaume PÃ©ron
 
-## Negative Log-likelihood function    /!\ uses specific covariate names  "var1" to "var7"
+## Negative Log-likelihood function    /!\ specific covariate names are used in order to exactly reproduce the structure presented in the main text: "var1" to "var7" 
 ## -----------------------------------------------------------------------------
 Loglik = function (theta) {
   # parameters for initial occupancy
@@ -19,7 +19,7 @@ Loglik = function (theta) {
   beta.ext = theta[i+(1:nex)] ; i=i+nex  
   # parameters for colonization
   beta.col = theta[i+(1:ncol)] ; i=i+ncol  
-  # parameters for spatial autoregression effects (with transformation to force direction of effects as implemented in the main text) 
+  # parameters for spatial autoregression effects (with transformation to force direction of effects as explained in the main text) 
   if(doALext) { beta.AL.ext = -3*plogis(theta[i+1]) ; i=i+1  }  else  beta.AL.ext = 0
   if(doALcol) { beta.AL.col = +3*plogis(theta[i+1]) ; i=i+1  }  else  beta.AL.col = 0
   
@@ -28,7 +28,7 @@ Loglik = function (theta) {
   names(beta.ext) = covarid.ext
   names(beta.col) = covarid.col
      
-  ## Year 1: initial state
+  ## Year 1: initial probability of occupancy
   PSIupdate = PSI = plogis( COVAR[,covarid.psi0] %*% (beta.psi0) )
   P = plogis( COVAR[,covarid.P] %*% (beta.P) + beta.Pt*tt[1] + beta.Pt2*tt2[1] + beta.PtxZ*tt[1]*COVAR[,"var7"] )
   LL=0
@@ -55,7 +55,7 @@ Loglik = function (theta) {
       # Extinction and colonization probabilities
       ext = plogis( sum(beta.ext*COVAR[k,covarid.ext]) + beta.AL.ext*psi_bar )
       col = plogis( sum(beta.col*COVAR[k,covarid.col]) + beta.AL.col*psi_bar )
-      # Update okupancy
+      # Update occupancy
       psiup =  psi*(1-ext) + (1-psi)*col  
       PSIupdate[k] = psiup
       # Likelihood of data bit
@@ -90,7 +90,7 @@ return(ans)
 }
 Ncells = 100  ## number of cells
 Nyears=10     ## number of years
-K =10         ## number of visits per year and cell
+K =10         ## number of visits per year and grid cell
 nvisits = matrix(K,Ncells,Nyears)
 nobs = simulation0(psi=seq(0.9,0.6,length.out=Nyears),p=seq(0.6,0.9,length.out=Nyears),n=Ncells,K=nvisits)
 
@@ -98,14 +98,14 @@ nobs = simulation0(psi=seq(0.9,0.6,length.out=Nyears),p=seq(0.6,0.9,length.out=N
 COVAR=matrix(rnorm(Ncells*7,0,1),Ncells,7)
 colnames(COVAR) = paste("var",1:7,sep="")
 
-## Create random reighborhoods
+## Create random neighborhoods
 NEIGH = vector(mode = "list", length = Ncells)
 for(i in 1:Ncells) {
     NEIGH[[i]] = unique(c(NEIGH[[i]], sample(1:Ncells, max(0, 8-length(NEIGH[[i]])), replace=F)))
     for(j in NEIGH[[i]]) NEIGH[[j]]=unique(c(NEIGH[[j]],i))
 }
 
-## Cammands to specify the model (same structure as "Full model" in the main text)
+## Commands to specify the model (same structure as "Full model" in the main text)
  covarid.psi0=colnames(COVAR)[1:7]  ## names of the covariates to include in the component for initial occupancy
  covarid.P=colnames(COVAR)[1:7]     ## names of the covariates to include in the component for detection
  covarid.ext=colnames(COVAR)[1:7]   ## names of the covariates to include in the component for extinction
